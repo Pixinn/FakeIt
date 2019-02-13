@@ -495,7 +495,7 @@ struct BasicVerification: tpunit::TestFixture {
 	void verifyWithUnverifiedFunctor(){
 
         struct AnInterface {
-            virtual int func(int) = 0;
+            virtual int func(int) {};
         };
         
         Mock<AnInterface> mock;
@@ -521,7 +521,7 @@ struct BasicVerification: tpunit::TestFixture {
 	void verifyWithUnverifiedFunctorWithUsing() {
 
 		struct AnInterface {
-			virtual int func(int) = 0;
+            virtual int func(int) {};
 		};
 
 		Mock<AnInterface> mock;
@@ -537,7 +537,7 @@ struct BasicVerification: tpunit::TestFixture {
 	void verificationProgressShouldBeConvertibleToBool(){
 
 		struct AnInterface {
-			virtual int func(int) = 0;
+            virtual int func(int) {};
 		};
 
 		Mock<AnInterface> mock;
@@ -573,8 +573,8 @@ struct BasicVerification: tpunit::TestFixture {
 
 	void verificationShouldTolerateNullString(){
 		struct RefEater {
-			virtual int eatChar(char*) = 0;
-			virtual int eatConstChar(const char*) = 0;
+            virtual int eatChar(char*) {};
+            virtual int eatConstChar(const char*) {};
 		};
 
 		Mock<RefEater> mock;

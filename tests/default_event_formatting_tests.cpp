@@ -13,7 +13,6 @@
 
 #include "tpunit++.hpp"
 #include "fakeit.hpp"
-#include <fakeit/api_functors.hpp>
 
 using namespace fakeit;
 
