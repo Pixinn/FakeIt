@@ -1,59 +1,82 @@
-IF(BIICODE)
-  ADD_BII_TARGETS()
-ENDIF()
+# This is an header only library
+# On Windows, sets the CMAKE_PACKAGES_DIR environment variable to indicate where to install
 
-#LIST(APPEND BII_LIB_SRC tests/argument_matching_tests.cpp)
-###############################################################################
-#      HELP                                                                   #
-###############################################################################
-#
-# This CMakeLists.txt file helps defining your block builds
-# To learn more visit http://docs.biicode.com/c++.html
-#
-# To include published cmake scripts:
-#   1. INCLUDE(user/block/myrecipe) # include myrecipe.cmake from remote user/block
-#   2. Remember to execute bii find
-#   Example:
-#      INCLUDE(biicode/cmake/tools) # Include tools.cmake file from cmake block from "biicode" user
-#      ACTIVATE_CPP11(INTERFACE ${BII_BLOCK_TARGET})
-#
-# Useful variables:
-#   To be modified BEFORE the call to ADD_BII_TARGETS()
-#     ${BII_LIB_SRC}  File list to create the library
-#
-#   To be modified AFTER the call to ADD_BII_TARGETS()
-#     ${BII_BLOCK_TARGET}  Interface (no files) target for convenient configuration of all
-#                          targets in this block, as the rest of targets always depend on it
-#                          has name in the form "user_block_interface"
-#     ${BII_LIB_TARGET}  Target library name, usually in the form "user_block". May not exist
-#                        if BII_LIB_SRC is empty
-#     ${BII_BLOCK_TARGETS} List of all targets defined in this block
-#     ${BII_BLOCK_EXES} List of executables targets defined in this block
-#     ${BII_exe_name_TARGET}: Executable target (e.g. ${BII_main_TARGET}. You can also use
-#                            directly the name of the executable target (e.g. user_block_main)
-#
-# > EXAMPLE: Add include directories to all targets of this block
-#
-#    TARGET_INCLUDE_DIRECTORIES(${BII_BLOCK_TARGET} INTERFACE myincludedir)
-#
-# > EXAMPLE: Link with pthread:
-#
-#    TARGET_LINK_LIBRARIES(${BII_BLOCK_TARGET} INTERFACE pthread)
-#        or link against library:
-#    TARGET_LINK_LIBRARIES(${BII_LIB_TARGET} PUBLIC pthread)
-#
-#    NOTE:  This can be also done adding pthread to ${BII_LIB_DEPS}
-#            BEFORE calling ADD_BIICODE_TARGETS()
-#
-# > EXAMPLE: how to activate C++11
-#
-#    IF(APPLE)
-#         TARGET_COMPILE_OPTIONS(${BII_BLOCK_TARGET} INTERFACE "-std=c++11 -stdlib=libc++")
-#    ELSEIF (WIN32 OR UNIX)
-#         TARGET_COMPILE_OPTIONS(${BII_BLOCK_TARGET} INTERFACE "-std=c++11")
-#    ENDIF(APPLE)
-#
-# > EXAMPLE: Set properties to target
-#
-#    SET_TARGET_PROPERTIES(${BII_BLOCK_TARGET} PROPERTIES COMPILE_DEFINITIONS "IOV_MAX=255")
-#
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+
+project(fakeit VERSION 1.0)
+
+set(LIB_NAME ${PROJECT_NAME})
+
+## HEADER LIBRARY
+include(GNUInstallDirs)
+add_library(${LIB_NAME} INTERFACE)
+target_include_directories(	${LIB_NAME} INTERFACE 
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
+# Package
+if(CMAKE_SYSTEM MATCHES "Windows") # Where to install packages. CMAKE_INSTALL_PREFIX would default to 
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    if("$ENV{CMAKE_PACKAGES_DIR}" STREQUAL "")
+        message(FATAL_ERROR "\n!!!!!!!!! FATAL ERROR !!!!!!!!!\nPlease define CMAKE_INSTALL_PREFIX or set a CMAKE_PACKAGES_DIR environment variable.\nDelete CMakeCache.txt then proceed.\n!!!!!!!!!")
+    else()
+        set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_PACKAGES_DIR} CACHE PATH "..." FORCE) 
+    endif()
+endif()
+endif(CMAKE_SYSTEM MATCHES "Windows")
+
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/single_header/ DESTINATION  ${CMAKE_INSTALL_PREFIX}/include/${LIB_NAME})   # this one will copy the whole include dir
+install(    # this one will copy the built artifacts
+            TARGETS ${LIB_NAME}
+			EXPORT ${LIB_NAME}-targets
+			PUBLIC_HEADER DESTINATION   ${CMAKE_INSTALL_INCLUDEDIR}/${LIB_NAME} # defined with set_target_properties()
+)
+install(     # this one will copy the .cmake files
+            EXPORT ${LIB_NAME}-targets
+            FILE ${LIB_NAME}-config.cmake
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIB_NAME}
+		)
+
+
+## TESTS
+ set(COMPILE_OPTIONS_MSVC "/W4 /MP /WX")
+ set(COMPILE_OPTIONS_UNIX  "-Wall -Wextra  -Werror -Wno-missing-braces") #"missing-braces" only emitted by 
+
+ add_executable("all_tests"
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/argument_matching_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp14_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/custom_event_formatting_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/custom_testing_framework_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/default_behaviore_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/default_event_formatting_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/dtor_mocking_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/event_notification_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/functional.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/gcc_stubbing_multiple_values_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/gcc_type_info_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/miscellaneous_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/msc_stubbing_multiple_values_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/msc_type_info_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/overloadded_methods_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/referece_types_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/remove_const_volatile_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/rvalue_arguments_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/sequence_verification_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/spying_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/streaming_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/stubbing_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/tpunit++main.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/type_info_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/verification_errors_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/verification_tests.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/tests/VirtualOffsetSelectorTest.cpp
+)
+ target_include_directories("all_tests" PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests
+                                                ${CMAKE_CURRENT_SOURCE_DIR}/single_header/standalone)
+
+# add_executable("example-c" ${CMAKE_CURRENT_SOURCE_DIR}/example.c)
+# target_include_directories("example-c" PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# if(MSVC)
+#     set_target_properties("a-test" "example-c" PROPERTIES COMPILE_FLAGS ${COMPILE_OPTIONS_MSVC})
+# else()
+#     set_target_properties("a-test" "example-c" PROPERTIES COMPILE_FLAGS ${COMPILE_OPTIONS_UNIX})
+# endif()

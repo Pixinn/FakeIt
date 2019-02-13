@@ -1,16 +1,24 @@
 FakeIt
 ======
- 
-[![Join the chat at https://gitter.im/eranpeer/FakeIt](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eranpeer/FakeIt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-GCC: [![Build Status GCC](https://travis-ci.org/eranpeer/FakeIt.svg?branch=master)](https://travis-ci.org/eranpeer/FakeIt)
-[![Coverage Status](https://coveralls.io/repos/github/eranpeer/FakeIt/badge.svg?branch=master)](https://coveralls.io/github/eranpeer/FakeIt?branch=master)
+* FakeIt is a simple mocking framework for C++. It supports GCC, Clang and MS Visual C++.
+* FakeIt is written in C++11 and can be used for testing both C++11 and C++ projects.
 
-MSC: [![Build status MSC](https://ci.appveyor.com/api/projects/status/sy2dk8se2yoxaqve)](https://ci.appveyor.com/project/eranpeer/fakeit)
+# About this fork
 
-FakeIt is a simple mocking framework for C++. It supports GCC, Clang and MS Visual C++.
+This fork of [FakeIt](https://eranpeer/FakeIt "original repository") brings a CMake project for easy installation and allowing FakeIt to be used in other CMake project with the *find_package()* command.
 
-FakeIt is written in C++11 and can be used for testing both C++11 and C++ projects.
+# How to install FakeIt
+
+**Windows users** need to set the environment variable *CMAKE_PACKAGES_DIR* to the directory where they install your CMake packages.
+
+	mkdir build_cmake
+	cd build_cmake
+	cmake ..
+	cmake --build . --target install
+
+
+# How to use FakeIt
 
 ```cpp
 struct SomeInterface {
